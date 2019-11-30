@@ -1,0 +1,73 @@
+---
+title: "Individual Assignment"
+author: "Hassaan Ahmed Siddiqui"
+date: "11/23/2019"
+output: html_document
+---
+
+getwd()
+setwd('D:/Web Scraping/individual assignment')
+
+
+```{r}
+library(rvest)
+library(data.table)
+library(magrittr)
+library(httr)
+
+search_topic <- 'international'
+page_to_download <- 3
+my_url <- ("https://www.economist.com/international/")
+
+df <- read_html(my_url)
+
+my_titles <- 
+df %>%
+  html_nodes('.flytitle-and-title__title')%>%
+  html_text()
+
+my_summary <- 
+df %>%
+  html_nodes('.teaser__text')%>%
+  html_text()
+
+
+data.frame('titles' = my_titles, 'summary' = my_summary)
+
+# creating function:
+get_pageone <- function(my_url){
+  
+  print(my_url)
+  df <- read_html(my_url)
+  
+  my_titles <- 
+    df %>%
+    html_nodes('.flytitle-and-title__title') %>%
+    html_text()
+  
+  my_summary <- 
+    df %>%
+    html_nodes('.teaser__text')%>%
+    html_text()
+  
+  return(data.frame('titles' = my_titles, 'summary' = my_summary))
+  
+}
+
+
+
+
+first_link <- ("https://www.economist.com/international/")
+
+rest_link <- paste0("https://www.economist.com/international/?page=", c(2:page_to_download))
+
+my_links <- c(first_link, rest_link)
+
+# using Lapply and rbindlist
+df_lists  <- lapply(my_links, get_pageone)
+
+final_df <- rbindlist(df_lists)
+
+
+View(final_df)
+```
